@@ -1,12 +1,14 @@
 const cheerio = require("cheerio");
 const axios = require("axios");
 const fs = require("fs");
-const writeStream = fs.createWriteStream("post.csv");
-/* writeStream.write(`Topic,Link \n`); */
+const csv = require("neat-csv");
+
+const writeStream = fs.createWriteStream("./post.csv");
+/*  writeStream.write(`Topic,Link \n`); */
 
 const FetchDATA = async url => {
   const res = await axios.get(url);
-  const $ = cheerio.load(res.data);
+  const $ = await cheerio.load(res.data);
 
   $(".athing").each((i, el) => {
     const topic = $(el)
@@ -18,9 +20,14 @@ const FetchDATA = async url => {
       .attr("href");
 
     writeStream.write(`${topic} , ${link} \n`);
-    /*   console.log(`${topic} , ${link}`); */
   });
-  
+
+  setTimeout(async () => {
+    const raw = await fs.readFileSync("./post.csv", "utf8");
+    const result = await csv(raw, { headers: false });
+    console.log(result);
+  }, 1000);
+
   console.log("Done...");
 };
 
@@ -35,6 +42,3 @@ function FetchPage(i) {
     FetchDATA(`https://news.ycombinator.com/news?p=${i}`);
   }, 1000 * i);
 } */
-
-/*   const Topic = $(".athing").text(); */
-/*   console.log(Topic); */
