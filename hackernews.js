@@ -2,6 +2,7 @@ const express = require("express");
 const cheerio = require("cheerio");
 const request = require("request-promise");
 const cron = require("node-cron");
+const fs = require("fs");
 const app = express();
 
 let checkNewsfeedFunc = async URL => {
@@ -21,18 +22,22 @@ let checkNewsfeedFunc = async URL => {
     scrapeResults.push({ topic, link });
   });
 
+  fs.writeFileSync("newsfeed.json", JSON.stringify(scrapeResults));
   return scrapeResults;
 };
 
 (async () => {
   let feedHackernews = "https://news.ycombinator.com/newest";
   cron.schedule("* * * * *", async () => {
-    let result = await checkNewsfeedFunc(feedHackernews);
+    await checkNewsfeedFunc(feedHackernews);
+
     app.get("/", (req, res) => {
-      if (result != "") {
-        return res.send(result);
-      }
-      return false;
+      fs.readFile("newsfeed.json", (err, data) => {
+        if (err) throw err;
+        let student = JSON.parse(data);
+
+        return res.send(student);
+      });
     });
     console.log(new Date().toLocaleString());
   });
