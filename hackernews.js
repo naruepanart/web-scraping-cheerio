@@ -1,7 +1,6 @@
 const cheerio = require("cheerio");
 const axios = require("axios");
 const fs = require("fs");
-const csv = require("neat-csv");
 
 const writeStream = fs.createWriteStream("./post.csv");
 /*  writeStream.write(`Topic,Link \n`); */
@@ -22,16 +21,16 @@ const FetchDATA = async url => {
     writeStream.write(`${topic} , ${link} \n`);
   });
 
-  setTimeout(async () => {
+/*   setTimeout(async () => {
     const raw = await fs.readFileSync("./post.csv", "utf8");
     const result = await csv(raw, { headers: false });
     console.log(result);
-  }, 1000);
+  }, 1000); */
 
   console.log("Done...");
 };
 
-FetchDATA(`https://news.ycombinator.com/`);
+module.exports = FetchDATA
 
 /* for (let i = 1; i <= 3; i++) {
   FetchPage(i);
